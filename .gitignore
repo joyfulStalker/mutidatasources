@@ -21,3 +21,16 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+multidatasources-spring-boot-starter/.classpath
+multidatasources-spring-boot-starter/.factorypath
+multidatasources-spring-boot-starter/.project
+multidatasources-spring-boot-starter/.settings/org.eclipse.core.resources.prefs
+multidatasources-spring-boot-starter/.settings/org.eclipse.jdt.apt.core.prefs
+multidatasources-spring-boot-starter/.settings/org.eclipse.jdt.core.prefs
+multidatasources-spring-boot-starter/.settings/org.eclipse.m2e.core.prefs
+multidatasources-spring-boot-starter/.settings/org.eclipse.wst.common.project.facet.core.xml
+multidatasources-spring-boot-starter/target/classes/META-INF/MANIFEST.MF
+multidatasources-spring-boot-starter/target/classes/META-INF/maven/cn.yonyou.multidatasources/multidatasources-spring-boot-starter/pom.properties
+multidatasources-spring-boot-starter/target/classes/META-INF/maven/cn.yonyou.multidatasources/multidatasources-spring-boot-starter/pom.xml
+multidatasources-spring-boot-starter/target/classes/META-INF/spring-configuration-metadata.json
+multidatasources-spring-boot-starter/target/classes/META-INF/spring.factories
