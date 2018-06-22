@@ -1,4 +1,4 @@
-package cn.yonyou.multidatasource.aop;
+package com.yonyou.multidatasource.aop;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 
-import cn.yonyou.multidatasource.comm.DataSourceKey;
-import cn.yonyou.multidatasource.comm.DynamicDataSourceHolder;
-import cn.yonyou.multidatasource.comm.TargetDataSource;
+import com.yonyou.multidatasource.comm.DataSourceKey;
+import com.yonyou.multidatasource.comm.DynamicDataSourceHolder;
+import com.yonyou.multidatasource.comm.TargetDataSource;
 
 
 /**

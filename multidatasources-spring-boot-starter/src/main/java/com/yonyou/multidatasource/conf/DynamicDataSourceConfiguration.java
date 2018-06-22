@@ -1,4 +1,4 @@
-package cn.yonyou.multidatasource.conf;
+package com.yonyou.multidatasource.conf;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,8 +18,8 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import cn.yonyou.multidatasource.comm.DataSourceKey;
-import cn.yonyou.multidatasource.comm.DynamicRoutingDataSource;
+import com.yonyou.multidatasource.comm.DataSourceKey;
+import com.yonyou.multidatasource.comm.DynamicRoutingDataSource;
 
 /**
  * 动态设置数据源

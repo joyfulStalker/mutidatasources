@@ -1,4 +1,4 @@
-package cn.yonyou.multidatasource.comm;
+package com.yonyou.multidatasource.comm;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

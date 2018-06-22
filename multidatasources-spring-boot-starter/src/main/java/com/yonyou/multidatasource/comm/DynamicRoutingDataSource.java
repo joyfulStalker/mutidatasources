@@ -1,4 +1,4 @@
-package cn.yonyou.multidatasource.comm;
+package com.yonyou.multidatasource.comm;
 
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
