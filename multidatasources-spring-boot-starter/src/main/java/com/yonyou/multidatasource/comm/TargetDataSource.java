@@ -16,4 +16,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TargetDataSource {
     DataSourceKey dataSourceKey() default DataSourceKey.DB_DEFAULT;
+    String customDataSourceKey() default "";
 }

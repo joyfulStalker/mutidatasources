@@ -9,7 +9,7 @@ package com.yonyou.multidatasource.comm;
 
 public class DynamicDataSourceHolder {
 
-	private static final ThreadLocal<DataSourceKey> currentDatesource = new ThreadLocal<>();
+	private static final ThreadLocal<String> currentDatesource = new ThreadLocal<>();
 
 	/**
 	 * 清除当前数据源
@@ -23,7 +23,7 @@ public class DynamicDataSourceHolder {
 	 *
 	 * @return 当前使用数据源的ID
 	 */
-	public static DataSourceKey get() {
+	public static String get() {
 		return currentDatesource.get();
 	}
 
@@ -33,7 +33,7 @@ public class DynamicDataSourceHolder {
 	 * @param value
 	 *            需要设置的数据源ID
 	 */
-	public static void set(DataSourceKey value) {
+	public static void set(String value) {
 		currentDatesource.set(value);
 	}
 

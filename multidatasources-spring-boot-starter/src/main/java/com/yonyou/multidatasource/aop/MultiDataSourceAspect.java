@@ -7,8 +7,11 @@ import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
+import org.springframework.util.StringUtils;
 
 import com.yonyou.multidatasource.comm.DataSourceKey;
 import com.yonyou.multidatasource.comm.DynamicDataSourceHolder;
@@ -28,6 +31,9 @@ public class MultiDataSourceAspect {
 
 	private static final Logger logger = LoggerFactory.getLogger(MultiDataSourceAspect.class);
 
+	@Autowired
+	private Environment env;
+	
 	@Pointcut("execution(* *..*.*(..))")
 	public void pointCut() {
 	}
@@ -42,8 +48,13 @@ public class MultiDataSourceAspect {
 	 */
 	@Before("@annotation(targetDataSource)")
 	public void doBefore(JoinPoint joinPoint, TargetDataSource targetDataSource) {
-		DynamicDataSourceHolder.set(targetDataSource.dataSourceKey());
-		logger.info("设置数据源：" + targetDataSource.dataSourceKey() + "为当前数据源");
+		if(!StringUtils.isEmpty(targetDataSource.customDataSourceKey())) {
+			DynamicDataSourceHolder.set(targetDataSource.customDataSourceKey());
+			logger.info("设置数据源：" + targetDataSource.customDataSourceKey() + "为当前数据源");
+		}else {
+			DynamicDataSourceHolder.set(targetDataSource.dataSourceKey().toString());
+			logger.info("设置数据源：" + targetDataSource.dataSourceKey() + "为当前数据源");
+		}
 	}
 
 	/**
@@ -56,7 +67,7 @@ public class MultiDataSourceAspect {
 	 */
 	@After("@annotation(targetDataSource)")
 	public void doAfter(JoinPoint joinPoint, TargetDataSource targetDataSource) {
-		DataSourceKey dataSourceKey = DynamicDataSourceHolder.get();
+		String dataSourceKey = DynamicDataSourceHolder.get();
 		DynamicDataSourceHolder.clear();
 		logger.info("已清除当前数据源" + dataSourceKey);
 	}

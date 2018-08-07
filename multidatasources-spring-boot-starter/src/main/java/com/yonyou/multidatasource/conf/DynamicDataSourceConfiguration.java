@@ -10,15 +10,13 @@ import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.yonyou.multidatasource.comm.DataSourceKey;
 import com.yonyou.multidatasource.comm.DynamicRoutingDataSource;
 
 /**
@@ -33,73 +31,48 @@ import com.yonyou.multidatasource.comm.DynamicRoutingDataSource;
 public class DynamicDataSourceConfiguration {
 
 	@Autowired
+	private Environment env;
+
+	@Autowired
 	private DataSourceProperties dataSourceProperties;
-
-	@Bean
-	@ConfigurationProperties(prefix = "multi.datasource.default")
-	public DataSource dbDefault() {
-		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		dataSource.setDriverClassName(dataSourceProperties.determineDriverClassName());
-		dataSource.setPassword(dataSourceProperties.determinePassword());
-		dataSource.setUrl(dataSourceProperties.determineUrl());
-		dataSource.setUsername(dataSourceProperties.determineUsername());
-		return dataSource;
-	}
-
-	@Bean
-	@ConfigurationProperties(prefix = "multi.datasource.two")
-	public DataSource dbTwo() {
-		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		dataSource.setDriverClassName(dataSourceProperties.determineDriverClassName());
-		dataSource.setPassword(dataSourceProperties.determinePassword());
-		dataSource.setUrl(dataSourceProperties.determineUrl());
-		dataSource.setUsername(dataSourceProperties.determineUsername());
-		return dataSource;
-	}
-	@Bean
-	@ConfigurationProperties(prefix = "multi.datasource.three")
-	public DataSource dbThree() {
-		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		dataSource.setDriverClassName(dataSourceProperties.determineDriverClassName());
-		dataSource.setPassword(dataSourceProperties.determinePassword());
-		dataSource.setUrl(dataSourceProperties.determineUrl());
-		dataSource.setUsername(dataSourceProperties.determineUsername());
-		return dataSource;
-	}
-	@Bean
-	@ConfigurationProperties(prefix = "multi.datasource.four")
-	public DataSource dbFour() {
-		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		dataSource.setDriverClassName(dataSourceProperties.determineDriverClassName());
-		dataSource.setPassword(dataSourceProperties.determinePassword());
-		dataSource.setUrl(dataSourceProperties.determineUrl());
-		dataSource.setUsername(dataSourceProperties.determineUsername());
-		return dataSource;
-	}
-	@Bean
-	@ConfigurationProperties(prefix = "multi.datasource.five")
-	public DataSource dbFive() {
-		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		dataSource.setDriverClassName(dataSourceProperties.determineDriverClassName());
-		dataSource.setPassword(dataSourceProperties.determinePassword());
-		dataSource.setUrl(dataSourceProperties.determineUrl());
-		dataSource.setUsername(dataSourceProperties.determineUsername());
-		return dataSource;
-	}
 
 	@Bean
 	public DataSource dynamicDataSource() {
 		DynamicRoutingDataSource dataSource = new DynamicRoutingDataSource();
-		dataSource.setDefaultTargetDataSource(dbDefault());
-		Map<Object, Object> dataSourceMap = new HashMap<>(4);
-		
-//		DynamicDataSourceConfiguration.class.getDeclaredAnnotation(annotationClass)
-		
-		dataSourceMap.put(DataSourceKey.DB_DEFAULT, dbDefault());
-		dataSourceMap.put(DataSourceKey.DB_TWO, dbTwo());
-		dataSourceMap.put(DataSourceKey.DB_THREE, dbThree());
-		dataSourceMap.put(DataSourceKey.DB_FOUR, dbFour());
-		dataSourceMap.put(DataSourceKey.DB_FIVE, dbFive());
+		Map<Object, Object> dataSourceMap = new HashMap<>();
+		// 约定的配置
+		String[] appoint = { "default", "two", "three" };
+		for (String name : appoint) {
+			String property = "multi.datasource." + name;
+			String driverclass = env.getProperty(property + ".driverclass");
+			String password = env.getProperty(property + ".password");
+			String url = env.getProperty(property + ".url");
+			String username = env.getProperty(property + ".username");
+			if(driverclass != null && url != null && username != null) {
+				DriverManagerDataSource dataSource2 = new DriverManagerDataSource();
+				dataSource2.setDriverClassName(driverclass);
+				dataSource2.setPassword(password);
+				dataSource2.setUrl(url);
+				dataSource2.setUsername(username);
+				dataSourceMap.put(name, dataSource2);
+			}
+		}
+
+		// 自定义扩展的配置
+		String customNames = env.getProperty("multi.datasource.custom");
+		System.out.println(customNames);
+		String[] names = customNames.split(",");
+		DriverManagerDataSource dataSource2 = new DriverManagerDataSource();
+		for (String name : names) {
+			String property = "multi.datasource." + name;
+			String password = env.getProperty(property + ".password");
+			dataSource2.setDriverClassName(env.getProperty(property + ".driverclass"));
+			dataSource2.setPassword(password);
+			dataSource2.setUrl(env.getProperty(property + ".url"));
+			dataSource2.setUsername(env.getProperty(property + ".username"));
+			dataSourceMap.put(name, dataSource2);
+		}
+		// 把datasource 以键值对存放到放入目标源
 		dataSource.setTargetDataSources(dataSourceMap);
 		return dataSource;
 	}
@@ -109,8 +82,9 @@ public class DynamicDataSourceConfiguration {
 		SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
 		sqlSessionFactoryBean.setDataSource(dynamicDataSource());
 		// 此处设置为了解决找不到mapper文件的问题
-//		sqlSessionFactoryBean
-//				.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:mapper/*.xml"));
+		// sqlSessionFactoryBean
+		// .setMapperLocations(new
+		// PathMatchingResourcePatternResolver().getResources("classpath:mapper/*.xml"));
 		return sqlSessionFactoryBean.getObject();
 	}
 
