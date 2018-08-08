@@ -1,5 +1,7 @@
 package com.yonyou.multidatasource.aop;
 
+import java.util.Arrays;
+
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
@@ -13,17 +15,16 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
-import com.yonyou.multidatasource.comm.DataSourceKey;
 import com.yonyou.multidatasource.comm.DynamicDataSourceHolder;
 import com.yonyou.multidatasource.comm.TargetDataSource;
 
-
 /**
-* 切面获取注解配置的数据源
-* @author liusonglin
-* @date 2018年6月14日
-*/
-	
+ * 切面获取注解配置的数据源
+ * 
+ * @author liusonglin
+ * @date 2018年6月14日
+ */
+
 @Aspect
 @Order(-1)
 @Configuration
@@ -33,7 +34,7 @@ public class MultiDataSourceAspect {
 
 	@Autowired
 	private Environment env;
-	
+
 	@Pointcut("execution(* *..*.*(..))")
 	public void pointCut() {
 	}
@@ -48,12 +49,16 @@ public class MultiDataSourceAspect {
 	 */
 	@Before("@annotation(targetDataSource)")
 	public void doBefore(JoinPoint joinPoint, TargetDataSource targetDataSource) {
-		if(!StringUtils.isEmpty(targetDataSource.customDataSourceKey())) {
-			DynamicDataSourceHolder.set(targetDataSource.customDataSourceKey());
-			logger.info("设置数据源：" + targetDataSource.customDataSourceKey() + "为当前数据源");
-		}else {
-			DynamicDataSourceHolder.set(targetDataSource.dataSourceKey().toString());
-			logger.info("设置数据源：" + targetDataSource.dataSourceKey() + "为当前数据源");
+		if (!StringUtils.isEmpty(targetDataSource.customDataSourceKey())) {
+			String property = env.getProperty("multi.datasource.custom");
+			if (!StringUtils.isEmpty(property)
+					&& Arrays.asList(property.split(",")).contains(targetDataSource.customDataSourceKey())) {
+				DynamicDataSourceHolder.set(targetDataSource.customDataSourceKey());
+				logger.info("设置数据源: " + targetDataSource.customDataSourceKey() + " 为当前数据源");
+			}
+		} else {
+			DynamicDataSourceHolder.set(targetDataSource.dataSourceKey().toString().toLowerCase());
+			logger.info("设置数据源: " + targetDataSource.dataSourceKey().toString().toLowerCase() + " 为当前数据源");
 		}
 	}
 
@@ -68,7 +73,9 @@ public class MultiDataSourceAspect {
 	@After("@annotation(targetDataSource)")
 	public void doAfter(JoinPoint joinPoint, TargetDataSource targetDataSource) {
 		String dataSourceKey = DynamicDataSourceHolder.get();
-		DynamicDataSourceHolder.clear();
-		logger.info("已清除当前数据源" + dataSourceKey);
+		if (!StringUtils.isEmpty(dataSourceKey)) {
+			DynamicDataSourceHolder.clear();
+			logger.info("已清除当前数据源: " + dataSourceKey);
+		}
 	}
 }

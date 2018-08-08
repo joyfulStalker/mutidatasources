@@ -8,5 +8,5 @@ package com.yonyou.multidatasource.comm;
  */
 
 public enum DataSourceKey {
-	DB_DEFAULT, DB_TWO, DB_THREE, DB_FOUR, DB_FIVE
+	DEFAULT, MASTER, SLAVE
 }
