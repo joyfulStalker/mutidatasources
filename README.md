@@ -1,4 +1,4 @@
-### 多数据源用法
+### 多数据源用法(支持约定配置和自定义配置)
 #### 下载multidatasources-spring-boot-starter,并安装到本地
 #### springboot项目中的pom文件加入依赖，地址如下
   ```
