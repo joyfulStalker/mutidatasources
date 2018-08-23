@@ -55,6 +55,8 @@ public class MultiDataSourceAspect {
 					&& Arrays.asList(property.split(",")).contains(targetDataSource.customDataSourceKey())) {
 				DynamicDataSourceHolder.set(targetDataSource.customDataSourceKey());
 				logger.info("设置数据源: " + targetDataSource.customDataSourceKey() + " 为当前数据源");
+			}else {
+				throw new RuntimeException("请确定是否配置了该数据源："+targetDataSource.customDataSourceKey());
 			}
 		} else {
 			DynamicDataSourceHolder.set(targetDataSource.dataSourceKey().toString().toLowerCase());

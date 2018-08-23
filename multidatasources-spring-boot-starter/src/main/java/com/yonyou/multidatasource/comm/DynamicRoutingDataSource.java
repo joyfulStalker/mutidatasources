@@ -20,7 +20,7 @@ public class DynamicRoutingDataSource extends AbstractRoutingDataSource {
 	protected Object determineCurrentLookupKey() {
 		
 		if(null == DynamicDataSourceHolder.get()) {
-			logger.info("當前數據源為默認數據源");
+			logger.info("当前为默认数据源");
 			return "default";
 		}else {
 			return DynamicDataSourceHolder.get();

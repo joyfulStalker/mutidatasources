@@ -11,17 +11,18 @@ import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.StringUtils;
 
+import com.alibaba.druid.pool.DruidDataSource;
+import com.yonyou.multidatasource.comm.DefaultDruidDataSourceConf;
 import com.yonyou.multidatasource.comm.DynamicRoutingDataSource;
 
 /**
@@ -32,7 +33,6 @@ import com.yonyou.multidatasource.comm.DynamicRoutingDataSource;
  */
 
 @Configuration
-@SuppressWarnings(value = { "all" })
 public class DynamicDataSourceConfiguration {
 
 	private static final Logger logger = LoggerFactory.getLogger(DynamicDataSourceConfiguration.class);
@@ -40,13 +40,11 @@ public class DynamicDataSourceConfiguration {
 	@Autowired
 	private Environment env;
 
-	@Autowired
-	private DataSourceProperties dataSourceProperties;
-
 	@Bean
 	public DataSource dynamicDataSource() {
 		DynamicRoutingDataSource dataSource = new DynamicRoutingDataSource();
 		Map<Object, Object> dataSourceMap = new HashMap<>();// 存放自定义数据源和约定数据源
+		DefaultDruidDataSourceConf defaultDruidDataSourceConf = new DefaultDruidDataSourceConf();
 		// 约定的配置
 		String[] appoint = { "default", "master", "slave" };
 		for (String name : appoint) {
@@ -56,12 +54,11 @@ public class DynamicDataSourceConfiguration {
 			String username = env.getProperty(property + ".username");
 			String password = env.getProperty(property + ".password");
 			if (driverclass != null && url != null && username != null) {
-				DriverManagerDataSource dataSource2 = new DriverManagerDataSource();
-				dataSource2.setDriverClassName(driverclass);
-				dataSource2.setPassword(password);
-				dataSource2.setUrl(url);
-				dataSource2.setUsername(username);
-				dataSourceMap.put(name, dataSource2);
+				dealDruidConf(dataSourceMap, defaultDruidDataSourceConf, name, driverclass, url, username, password);
+			} else {
+				if ("default".equals(name)) {
+					throw new RuntimeException("默认数据源必配");
+				}
 			}
 		}
 
@@ -71,19 +68,28 @@ public class DynamicDataSourceConfiguration {
 			String[] names = customNames.split(",");
 			logger.info("自定义数据源：" + Arrays.toString(names));
 
-			DriverManagerDataSource dataSource2 = new DriverManagerDataSource();
 			for (String name : names) {
 				String property = "multi.datasource." + name;
-				dataSource2.setDriverClassName(env.getProperty(property + ".driverclass"));
-				dataSource2.setUrl(env.getProperty(property + ".url"));
-				dataSource2.setUsername(env.getProperty(property + ".username"));
-				dataSource2.setPassword(env.getProperty(property + ".password"));
-				dataSourceMap.put(name, dataSource2);
+				dealDruidConf(dataSourceMap, defaultDruidDataSourceConf, name,
+						env.getProperty(property + ".driverclass"), env.getProperty(property + ".url"),
+						env.getProperty(property + ".username"), env.getProperty(property + ".password"));
 			}
 		}
 		// 把datasource 以键值对存放到放入目标源
 		dataSource.setTargetDataSources(dataSourceMap);
 		return dataSource;
+	}
+
+	private void dealDruidConf(Map<Object, Object> dataSourceMap, DefaultDruidDataSourceConf defaultDruidDataSourceConf,
+			String name, String driverclass, String url, String username, String password) {
+		DruidDataSource druidDataSource = new DruidDataSource();
+		BeanUtils.copyProperties(defaultDruidDataSourceConf, druidDataSource);
+		druidDataSource.setName(name);// 如果存在多个数据源，监控的时候可以通过名字来区分开来
+		druidDataSource.setDriverClassName(driverclass);
+		druidDataSource.setPassword(password);
+		druidDataSource.setUrl(url);
+		druidDataSource.setUsername(username);
+		dataSourceMap.put(name, druidDataSource);
 	}
 
 	@Bean
