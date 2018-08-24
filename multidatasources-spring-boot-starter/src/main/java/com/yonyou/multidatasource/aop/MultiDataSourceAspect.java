@@ -49,6 +49,11 @@ public class MultiDataSourceAspect {
 	 */
 	@Before("@annotation(targetDataSource)")
 	public void doBefore(JoinPoint joinPoint, TargetDataSource targetDataSource) {
+		String isEnable = env.getProperty("multi.datasource.enable-dynamic");
+		if(StringUtils.isEmpty(isEnable) || !Boolean.parseBoolean(isEnable)) {//未开启多数据源
+			return;
+		}
+		
 		if (!StringUtils.isEmpty(targetDataSource.customDataSourceKey())) {
 			String property = env.getProperty("multi.datasource.custom");
 			if (!StringUtils.isEmpty(property)

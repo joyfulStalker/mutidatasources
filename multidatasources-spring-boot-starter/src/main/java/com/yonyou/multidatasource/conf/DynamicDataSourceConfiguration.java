@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -33,15 +35,25 @@ import com.yonyou.multidatasource.comm.DynamicRoutingDataSource;
  */
 
 @Configuration
+@EnableConfigurationProperties({DataSourceProperties.class })
 public class DynamicDataSourceConfiguration {
 
 	private static final Logger logger = LoggerFactory.getLogger(DynamicDataSourceConfiguration.class);
-
+	
+	@Autowired
+	DataSourceProperties properties;
+	
 	@Autowired
 	private Environment env;
 
 	@Bean
 	public DataSource dynamicDataSource() {
+		//增加mybatis默认配置
+		String isEnable = env.getProperty("multi.datasource.enable-dynamic");
+		if(StringUtils.isEmpty(isEnable) || !Boolean.parseBoolean(isEnable)) {//未开启多数据源
+			return properties.initializeDataSourceBuilder().type(properties.getType()).build();
+		}
+		
 		DynamicRoutingDataSource dataSource = new DynamicRoutingDataSource();
 		Map<Object, Object> dataSourceMap = new HashMap<>();// 存放自定义数据源和约定数据源
 		DefaultDruidDataSourceConf defaultDruidDataSourceConf = new DefaultDruidDataSourceConf();
