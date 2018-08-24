@@ -10,10 +10,12 @@
     <version>0.9.1-SNAPSHOT</version>
   </dependency>
   ```
-#### 修改项目的配置文件application.yml，配置自己的数据源，其中datasource下一级约定为default、master、slave,其中default为必配。 当然可以自定义配置，下面的custom支持自定义数据库名称，然后只需要在默认配置的同级配置即可，格式如下。
+#### 多数据源支持开启和关闭，默认关闭。配置参考mybatis的数据源配置
+#### 开启多数据源,需要在配置文件添加multi.datasource.enable-dynamic=true，不加的话默认使用mybatis的数据源配置。修改项目的配置文件application.yml，配置自己的数据源，其中datasource下一级约定为default、master、slave,其中default为必配。 当然可以自定义配置，下面的custom支持自定义数据库名称，然后只需要在默认配置的同级配置即可，格式如下。
   ```
   multi: 
     datasource:
+      enable-dynamic: true
       custom: multi1,multi2,multi3.....
       default:
         driverclass: com.mysql.cj.jdbc.Driver
