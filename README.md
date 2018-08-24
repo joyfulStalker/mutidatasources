@@ -3,11 +3,10 @@
 #### springboot项目中的pom文件加入依赖，地址如下
   ```
   <dependency>
-    <groupId>com.yonyou.multidatasources</groupId>
-    <artifactId>
-      multidatasources-spring-boot-starter
-    </artifactId>
-    <version>0.9.1-SNAPSHOT</version>
+      <groupId>com.lsl.multidatasources</groupId>
+      <artifactId>multidatasources-spring-boot-starter</artifactId>
+      <version>1.0.1-RELEASE</version>
+      <scope>compile</scope>
   </dependency>
   ```
 #### 多数据源支持开启和关闭，默认关闭。配置参考mybatis的数据源配置
