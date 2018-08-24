@@ -1,4 +1,4 @@
-package com.yonyou.multidatasource.comm;
+package com.lsl.multidatasource.comm;
 
 /**
  * 枚举所需要的主从数据库

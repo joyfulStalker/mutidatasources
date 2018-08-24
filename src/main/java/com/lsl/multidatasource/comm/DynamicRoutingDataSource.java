@@ -1,4 +1,4 @@
-package com.yonyou.multidatasource.comm;
+package com.lsl.multidatasource.comm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +8,7 @@ import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
 
-import com.yonyou.multidatasource.conf.DynamicDataSourceConfiguration;
+import com.lsl.multidatasource.conf.DynamicDataSourceConfiguration;
 
 /**
  * 获取当前数据源

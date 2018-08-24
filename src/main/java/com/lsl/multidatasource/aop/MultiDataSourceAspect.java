@@ -1,4 +1,4 @@
-package com.yonyou.multidatasource.aop;
+package com.lsl.multidatasource.aop;
 
 import java.util.Arrays;
 
@@ -15,8 +15,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
-import com.yonyou.multidatasource.comm.DynamicDataSourceHolder;
-import com.yonyou.multidatasource.comm.TargetDataSource;
+import com.lsl.multidatasource.comm.DynamicDataSourceHolder;
+import com.lsl.multidatasource.comm.TargetDataSource;
 
 /**
  * 切面获取注解配置的数据源

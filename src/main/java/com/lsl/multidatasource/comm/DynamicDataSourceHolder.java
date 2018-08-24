@@ -1,4 +1,4 @@
-package com.yonyou.multidatasource.comm;
+package com.lsl.multidatasource.comm;
 
 /**
  * 从注解获取数据源名并存放到当前线程中

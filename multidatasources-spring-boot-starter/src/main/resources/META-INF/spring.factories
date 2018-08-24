@@ -1,3 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.yonyou.multidatasource.aop.MultiDataSourceAspect,\
-com.yonyou.multidatasource.conf.DynamicDataSourceConfiguration

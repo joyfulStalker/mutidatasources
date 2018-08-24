@@ -1,4 +1,4 @@
-package com.yonyou.multidatasource.conf;
+package com.lsl.multidatasource.conf;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,8 +24,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.StringUtils;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.yonyou.multidatasource.comm.DefaultDruidDataSourceConf;
-import com.yonyou.multidatasource.comm.DynamicRoutingDataSource;
+import com.lsl.multidatasource.comm.DefaultDruidDataSourceConf;
+import com.lsl.multidatasource.comm.DynamicRoutingDataSource;
 
 /**
  * 动态设置数据源
