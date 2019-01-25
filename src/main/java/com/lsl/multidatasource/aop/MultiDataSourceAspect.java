@@ -50,22 +50,23 @@ public class MultiDataSourceAspect {
 	@Before("@annotation(targetDataSource)")
 	public void doBefore(JoinPoint joinPoint, TargetDataSource targetDataSource) {
 		String isEnable = env.getProperty("multi.datasource.enable-dynamic");
-		if(StringUtils.isEmpty(isEnable) || !Boolean.parseBoolean(isEnable)) {//未开启多数据源
+		if (StringUtils.isEmpty(isEnable) || !Boolean.parseBoolean(isEnable)) {// 未开启多数据源
 			return;
 		}
-		
+
 		if (!StringUtils.isEmpty(targetDataSource.customDataSourceKey())) {
 			String property = env.getProperty("multi.datasource.custom");
 			if (!StringUtils.isEmpty(property)
 					&& Arrays.asList(property.split(",")).contains(targetDataSource.customDataSourceKey())) {
 				DynamicDataSourceHolder.set(targetDataSource.customDataSourceKey());
-				logger.info("设置数据源: " + targetDataSource.customDataSourceKey() + " 为当前数据源");
-			}else {
-				throw new RuntimeException("请确定是否配置了该数据源："+targetDataSource.customDataSourceKey());
+				logger.info("the current datasource is: " + targetDataSource.customDataSourceKey());
+			} else {
+				throw new RuntimeException(
+						"please confirm config this DataSource：" + targetDataSource.customDataSourceKey());
 			}
 		} else {
 			DynamicDataSourceHolder.set(targetDataSource.dataSourceKey().toString().toLowerCase());
-			logger.info("设置数据源: " + targetDataSource.dataSourceKey().toString().toLowerCase() + " 为当前数据源");
+			logger.info("the current datasource is: " + targetDataSource.dataSourceKey().toString().toLowerCase());
 		}
 	}
 
@@ -82,7 +83,7 @@ public class MultiDataSourceAspect {
 		String dataSourceKey = DynamicDataSourceHolder.get();
 		if (!StringUtils.isEmpty(dataSourceKey)) {
 			DynamicDataSourceHolder.clear();
-			logger.info("已清除当前数据源: " + dataSourceKey);
+			logger.info("Current data sources have been cleared: " + dataSourceKey);
 		}
 	}
 }

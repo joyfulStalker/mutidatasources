@@ -18,9 +18,9 @@ import com.lsl.multidatasource.conf.DynamicDataSourceConfiguration;
  */
 
 public class DynamicRoutingDataSource extends AbstractRoutingDataSource {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DynamicDataSourceConfiguration.class);
-	
+
 	@Autowired
 	private Environment env;
 
@@ -32,7 +32,7 @@ public class DynamicRoutingDataSource extends AbstractRoutingDataSource {
 			return TransactionSynchronizationManager.getCurrentTransactionIsolationLevel();// 默认实现
 		} else {
 			if (null == DynamicDataSourceHolder.get()) {
-				logger.info("当前为默认数据源");
+				logger.info("The default datasource is currently used");
 				return "default";
 			} else {
 				return DynamicDataSourceHolder.get();

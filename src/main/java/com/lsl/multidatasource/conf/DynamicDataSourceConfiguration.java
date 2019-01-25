@@ -6,9 +6,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionFactoryBean;
-import org.mybatis.spring.SqlSessionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -18,14 +15,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.StringUtils;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.lsl.multidatasource.comm.DefaultDruidDataSourceConf;
 import com.lsl.multidatasource.comm.DynamicRoutingDataSource;
+import com.lsl.multidatasource.comm.MultiDruidDataSourceWrapper;
 
 /**
  * 动态设置数据源
@@ -35,28 +30,34 @@ import com.lsl.multidatasource.comm.DynamicRoutingDataSource;
  */
 
 @Configuration
-@EnableConfigurationProperties({DataSourceProperties.class })
+@EnableConfigurationProperties({ DataSourceProperties.class, DefaultDruidDataSourceConf.class })
 public class DynamicDataSourceConfiguration {
 
 	private static final Logger logger = LoggerFactory.getLogger(DynamicDataSourceConfiguration.class);
-	
+
 	@Autowired
-	DataSourceProperties properties;
-	
+	DefaultDruidDataSourceConf defaultDruidDataSourceConf;
+
 	@Autowired
 	private Environment env;
 
 	@Bean
 	public DataSource dynamicDataSource() {
-		//增加mybatis默认配置
+
+		// 多数据源开关
 		String isEnable = env.getProperty("multi.datasource.enable-dynamic");
-		if(StringUtils.isEmpty(isEnable) || !Boolean.parseBoolean(isEnable)) {//未开启多数据源
-			return properties.initializeDataSourceBuilder().type(properties.getType()).build();
+		if (StringUtils.isEmpty(isEnable) || !Boolean.parseBoolean(isEnable)) {// 未开启多数据源
+			// 由于德鲁伊的DruidDataSourceWrapper类是受保护的，不能引用，故参照DruidDataSourceWrapper定义MultiDruidDataSourceWrapper
+			MultiDruidDataSourceWrapper druidDataSourceWrapper = new MultiDruidDataSourceWrapper();
+			druidDataSourceWrapper.setDriverClassName(env.getProperty("spring.datasource.driverClassName"));
+			druidDataSourceWrapper.setPassword(env.getProperty("spring.datasource.password"));
+			druidDataSourceWrapper.setUrl(env.getProperty("spring.datasource.url"));
+			druidDataSourceWrapper.setUsername(env.getProperty("spring.datasource.username"));
+			return druidDataSourceWrapper;
 		}
-		
+
 		DynamicRoutingDataSource dataSource = new DynamicRoutingDataSource();
 		Map<Object, Object> dataSourceMap = new HashMap<>();// 存放自定义数据源和约定数据源
-		DefaultDruidDataSourceConf defaultDruidDataSourceConf = new DefaultDruidDataSourceConf();
 		// 约定的配置
 		String[] appoint = { "default", "master", "slave" };
 		for (String name : appoint) {
@@ -69,7 +70,7 @@ public class DynamicDataSourceConfiguration {
 				dealDruidConf(dataSourceMap, defaultDruidDataSourceConf, name, driverclass, url, username, password);
 			} else {
 				if ("default".equals(name)) {
-					throw new RuntimeException("默认数据源必配");
+					throw new RuntimeException("if you had enabled dynamic datasource,please config the default ...");
 				}
 			}
 		}
@@ -95,6 +96,11 @@ public class DynamicDataSourceConfiguration {
 	private void dealDruidConf(Map<Object, Object> dataSourceMap, DefaultDruidDataSourceConf defaultDruidDataSourceConf,
 			String name, String driverclass, String url, String username, String password) {
 		DruidDataSource druidDataSource = new DruidDataSource();
+		// 先改变下MinEvictableIdleTimeMillis，druid设置MinEvictableIdleTimeMillis和MaxEvictableIdleTimeMillis有点问题
+		// 导致设置MaxEvictableIdleTimeMillis时候报maxEvictableIdleTimeMillis must be grater
+		// than minEvictableIdleTimeMillis错误
+		// 详情参考https://www.cnblogs.com/wangiqngpei557/p/7136455.html?utm_source=itdadao&utm_medium=referral
+		druidDataSource.setMinEvictableIdleTimeMillis(defaultDruidDataSourceConf.getMinEvictableIdleTimeMillis());
 		BeanUtils.copyProperties(defaultDruidDataSourceConf, druidDataSource);
 		druidDataSource.setName(name);// 如果存在多个数据源，监控的时候可以通过名字来区分开来
 		druidDataSource.setDriverClassName(driverclass);
@@ -104,32 +110,4 @@ public class DynamicDataSourceConfiguration {
 		dataSourceMap.put(name, druidDataSource);
 	}
 
-	@Bean
-	public SqlSessionFactory sqlSessionFactory() throws Exception {
-		SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
-		sqlSessionFactoryBean.setDataSource(dynamicDataSource());
-		// 多数据源设置会使mybatis的mybatis.mapper-locations配置失效，此处设置为了解决找该问题
-		String mapperLocationsProperty = env.getProperty("mybatis.mapper-locations");
-		if (!StringUtils.isEmpty(mapperLocationsProperty)) {
-			sqlSessionFactoryBean.setMapperLocations(
-					new PathMatchingResourcePatternResolver().getResources(mapperLocationsProperty));
-		}
-
-		return sqlSessionFactoryBean.getObject();
-	}
-
-	@Bean
-	public SqlSessionTemplate sqlSessionTemplate() throws Exception {
-		return new SqlSessionTemplate(sqlSessionFactory());
-	}
-
-	/**
-	 * 事务管理
-	 *
-	 * @return 事务管理实例
-	 */
-	@Bean
-	public PlatformTransactionManager platformTransactionManager() {
-		return new DataSourceTransactionManager(dynamicDataSource());
-	}
 }

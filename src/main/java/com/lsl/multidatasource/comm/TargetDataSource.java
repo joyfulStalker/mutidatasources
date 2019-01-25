@@ -16,7 +16,12 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TargetDataSource {
 	
+	/**
+	 * 使用约定的dataSourceKey
+	 */
 	DataSourceKey dataSourceKey() default DataSourceKey.DEFAULT;
-
+	/**
+	 * 使用自定义的dataSourceKey
+	 */
 	String customDataSourceKey() default "";
 }
