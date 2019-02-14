@@ -13,9 +13,9 @@
 spring:
   datasource:
     driverClassName: com.mysql.jdbc.Driver
-    url: ${db.carowner.community.url:jdbc:mysql://10.180.4.212:3306/carowner_community?useUnicode=true&amp;characterEncoding=utf8mb4}
-    username: ${db.carowner.community.username:root}
-    password: ${db.carowner.community.password:Pass1234}
+    url: ${db.carowner.community.url:jdbc:mysql://localhost:3306/carowner_community?useUnicode=true&amp;characterEncoding=utf8mb4}
+    username: 
+    password: 
     druid:
       ##配置初始化大小、最小、最大 
       initial-size: 1
@@ -62,9 +62,9 @@ multi:
     ##开启多数据源后，这个必须配置，不加注解的走这个
     default:  
       driverclass: com.mysql.jdbc.Driver
-      url: ${db.carowner.community.url:jdbc:mysql://10.180.4.212:3306/carowner_community?useUnicode=true&amp;characterEncoding=utf8mb4}
-      username: ${db.carowner.community.username: }
-      password: ${db.carowner.community.password: }
+      url: ${db.carowner.community.url:jdbc:mysql://localhost:3306/carowner_community?useUnicode=true&amp;characterEncoding=utf8mb4}
+      username: 
+      password: 
     ##自定义数据源，多个以分号隔开,可无限扩展
     custom: test1,test2
     ##对应custom中的test1,如有多个按照以下方式依次配置,
